@@ -522,6 +522,83 @@ class PL9823Controller : public ClocklessController<DATA_PIN, NS(350), NS(1010),
 ///@}
 
 #endif
+
+#ifdef FASTLED_SDL
+#include <SDL2/SDL.h>
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// SDL Controller
+//
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <EOrder RGB_ORDER = RGB>
+class SDLController : public CPixelLEDController<RGB_ORDER> {
+
+private:
+	SDL_Window* window;
+	SDL_Renderer* renderer;
+	SDL_Texture* draw_texture;
+
+	unsigned world_w = 75;
+	unsigned world_h = 8;
+	unsigned scale   = 8;
+
+	void* sdl_pixels;
+	int sdl_pitch;
+
+public:
+	SDLController() {
+		// nothing to do here
+	}
+
+	~SDLController() {
+		SDL_Quit();
+	}
+
+	virtual void init() {
+		SDL_Init(SDL_INIT_VIDEO);
+		window = SDL_CreateWindow("FastLED", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, world_w * scale, world_h * scale, 0);
+		renderer = SDL_CreateRenderer(window, -1, 0);
+
+		draw_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_BGR888, SDL_TEXTUREACCESS_STREAMING, world_w, world_h);
+		SDL_LockTexture(draw_texture, NULL, &sdl_pixels, &sdl_pitch);
+	}
+
+protected:
+
+	virtual void showPixels(PixelController<RGB_ORDER> & pixels) {
+
+		Uint32 *p = (Uint32*) sdl_pixels;
+		while (pixels.has(1)) {
+			uint8_t r = pixels.loadAndScale0();
+			uint8_t g = pixels.loadAndScale1();
+			uint8_t b = pixels.loadAndScale2();
+
+			*p++ = r | (g << 8) | (b << 16);
+
+			pixels.advanceData();
+			pixels.stepDithering();
+		}
+
+		/* draw result to the screen */
+		SDL_UnlockTexture(draw_texture);
+		SDL_RenderCopy(renderer, draw_texture, NULL, NULL);
+		SDL_LockTexture(draw_texture, NULL, &sdl_pixels, &sdl_pitch);
+
+		SDL_RenderPresent(renderer);
+
+		SDL_Event sdl_event;
+		while (SDL_PollEvent(&sdl_event)) {
+			switch (sdl_event.type) {
+				case SDL_QUIT:
+					exit(0);
+			}
+		}
+	}
+
+};
+#endif
+
 ///@}
 FASTLED_NAMESPACE_END
 
