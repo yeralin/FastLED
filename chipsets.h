@@ -600,6 +600,11 @@ protected:
 		SDL_Event sdl_event;
 		while (SDL_PollEvent(&sdl_event)) {
 			switch (sdl_event.type) {
+				case SDL_KEYDOWN:
+					switch(sdl_event.key.keysym.sym) {
+						case SDLK_q:
+							exit(0);
+					}
 				case SDL_QUIT:
 					exit(0);
 			}
