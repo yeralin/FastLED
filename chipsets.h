@@ -567,7 +567,10 @@ public:
 		_envtoi("FASTLED_SCALE",  &scale);
 
 		SDL_Init(SDL_INIT_VIDEO);
-		window = SDL_CreateWindow("FastLED", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, world_w * scale, world_h * scale, 0);
+
+		char title[32];
+		snprintf(title, sizeof(title), "FastLED (%d x %d)", world_w, world_h);
+		window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, world_w * scale, world_h * scale, 0);
 		renderer = SDL_CreateRenderer(window, -1, 0);
 
 		draw_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_BGR888, SDL_TEXTUREACCESS_STREAMING, world_w, world_h);
