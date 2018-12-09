@@ -8,7 +8,8 @@
 
 #define F_CPU 10000000L
 
-#define FASTLED_FORCE_SOFTWARE_PINS
+#define HAS_HARDWARE_PIN_SUPPORT
+#define FASTLED_INTERNAL
 
 // Define the register types
 typedef uint8_t RoReg;

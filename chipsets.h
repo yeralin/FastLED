@@ -605,6 +605,8 @@ protected:
 						case SDLK_q:
 							exit(0);
 					}
+
+					break;
 				case SDL_QUIT:
 					exit(0);
 			}
