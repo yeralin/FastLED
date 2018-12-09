@@ -546,6 +546,12 @@ private:
 	void* sdl_pixels;
 	int sdl_pitch;
 
+	static void _envtoi(const char* var, unsigned* dest) {
+		const char* value = getenv(var);
+		if (value)
+			*dest = atoi(value);
+	}
+
 public:
 	SDLController() {
 		// nothing to do here
@@ -556,6 +562,10 @@ public:
 	}
 
 	virtual void init() {
+		_envtoi("FASTLED_WIDTH",  &world_w);
+		_envtoi("FASTLED_HEIGHT", &world_h);
+		_envtoi("FASTLED_SCALE",  &scale);
+
 		SDL_Init(SDL_INIT_VIDEO);
 		window = SDL_CreateWindow("FastLED", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, world_w * scale, world_h * scale, 0);
 		renderer = SDL_CreateRenderer(window, -1, 0);
