@@ -542,6 +542,7 @@ private:
 	unsigned world_w = WIDTH;
 	unsigned world_h = HEIGHT;
 	unsigned scale   = SCALE;
+	float boost      = 1.0f;
 
 	void* sdl_pixels;
 	int sdl_pitch;
@@ -583,9 +584,9 @@ protected:
 
 		Uint32 *p = (Uint32*) sdl_pixels;
 		while (pixels.has(1)) {
-			uint8_t r = pixels.loadAndScale0();
-			uint8_t g = pixels.loadAndScale1();
-			uint8_t b = pixels.loadAndScale2();
+			uint8_t r = pixels.loadAndScale0() * boost;
+			uint8_t g = pixels.loadAndScale1() * boost;
+			uint8_t b = pixels.loadAndScale2() * boost;
 
 			*p++ = r | (g << 8) | (b << 16);
 
@@ -605,6 +606,14 @@ protected:
 			switch (sdl_event.type) {
 				case SDL_KEYDOWN:
 					switch(sdl_event.key.keysym.sym) {
+						case SDLK_PLUS:
+						case SDLK_KP_PLUS:
+							boost += 0.1f;
+							break;
+						case SDLK_MINUS:
+						case SDLK_KP_MINUS:
+							boost -= 0.1f;
+							break;
 						case SDLK_q:
 							exit(0);
 					}
