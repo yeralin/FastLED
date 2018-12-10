@@ -531,7 +531,7 @@ class PL9823Controller : public ClocklessController<DATA_PIN, NS(350), NS(1010),
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <EOrder RGB_ORDER = RGB>
+template <uint16_t WIDTH, uint16_t HEIGHT, uint8_t SCALE, EOrder RGB_ORDER = RGB>
 class SDLController : public CPixelLEDController<RGB_ORDER> {
 
 private:
@@ -539,9 +539,9 @@ private:
 	SDL_Renderer* renderer;
 	SDL_Texture* draw_texture;
 
-	unsigned world_w = 75;
-	unsigned world_h = 8;
-	unsigned scale   = 8;
+	unsigned world_w = WIDTH;
+	unsigned world_h = HEIGHT;
+	unsigned scale   = SCALE;
 
 	void* sdl_pixels;
 	int sdl_pitch;

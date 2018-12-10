@@ -256,9 +256,9 @@ public:
 		}
 	}
 
-	template<MOCK CHIPSET,  uint8_t DATA_PIN, uint8_t CLOCK_PIN > static CLEDController &addLeds(struct CRGB *data, int nLedsOrOffset, int nLedsIfOffset = 0) {
+	template<MOCK CHIPSET,  uint16_t WIDTH=64, uint16_t HEIGHT=64, uint8_t SCALE=8 > static CLEDController &addLeds(struct CRGB *data, int nLedsOrOffset, int nLedsIfOffset = 0) {
 		switch(CHIPSET) {
-			case SDL: { static SDLController<> c; return addLeds(&c, data, nLedsOrOffset, nLedsIfOffset); }
+			case SDL: { static SDLController<WIDTH, HEIGHT, SCALE> c; return addLeds(&c, data, nLedsOrOffset, nLedsIfOffset); }
 		}
 	}
 
