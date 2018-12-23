@@ -256,11 +256,13 @@ public:
 		}
 	}
 
+#ifdef FASTLED_SDL
 	template<MOCK CHIPSET,  uint16_t WIDTH=64, uint16_t HEIGHT=64, uint8_t SCALE=8 > static CLEDController &addLeds(struct CRGB *data, int nLedsOrOffset, int nLedsIfOffset = 0) {
 		switch(CHIPSET) {
 			case SDL: { static SDLController<WIDTH, HEIGHT, SCALE> c; return addLeds(&c, data, nLedsOrOffset, nLedsIfOffset); }
 		}
 	}
+#endif
 
 #ifdef SPI_DATA
 	template<ESPIChipsets CHIPSET> static CLEDController &addLeds(struct CRGB *data, int nLedsOrOffset, int nLedsIfOffset = 0) {
