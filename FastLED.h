@@ -83,6 +83,7 @@ enum ESPIChipsets {
 enum ESM { SMART_MATRIX };
 enum OWS2811 { OCTOWS2811,OCTOWS2811_400, OCTOWS2813};
 enum SWS2812 { WS2812SERIAL };
+enum MOCK { SDL };
 
 #ifdef HAS_PIXIE
 template<uint8_t DATA_PIN, EOrder RGB_ORDER> class PIXIE : public PixieController<DATA_PIN, RGB_ORDER> {};
@@ -261,6 +262,14 @@ public:
 			case SK9822: { static SK9822Controller<DATA_PIN, CLOCK_PIN, RGB_ORDER> c; return addLeds(&c, data, nLedsOrOffset, nLedsIfOffset); }
 		}
 	}
+
+#ifdef FASTLED_SDL
+	template<MOCK CHIPSET,  uint16_t WIDTH=64, uint16_t HEIGHT=64, uint8_t SCALE=8 > static CLEDController &addLeds(struct CRGB *data, int nLedsOrOffset, int nLedsIfOffset = 0) {
+		switch(CHIPSET) {
+			case SDL: { static SDLController<WIDTH, HEIGHT, SCALE> c; return addLeds(&c, data, nLedsOrOffset, nLedsIfOffset); }
+		}
+	}
+#endif
 
 #ifdef SPI_DATA
 	template<ESPIChipsets CHIPSET> static CLEDController &addLeds(struct CRGB *data, int nLedsOrOffset, int nLedsIfOffset = 0) {

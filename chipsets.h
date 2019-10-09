@@ -617,6 +617,112 @@ class PL9823Controller : public ClocklessController<DATA_PIN, C_NS(350), C_NS(10
 ///@}
 
 #endif
+
+#ifdef FASTLED_SDL
+#include <SDL2/SDL.h>
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// SDL Controller
+//
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <uint16_t WIDTH, uint16_t HEIGHT, uint8_t SCALE, EOrder RGB_ORDER = RGB>
+class SDLController : public CPixelLEDController<RGB_ORDER> {
+
+private:
+	SDL_Window* window;
+	SDL_Renderer* renderer;
+	SDL_Texture* draw_texture;
+
+	unsigned world_w = WIDTH;
+	unsigned world_h = HEIGHT;
+	unsigned scale   = SCALE;
+	float boost      = 1.0f;
+
+	void* sdl_pixels;
+	int sdl_pitch;
+
+	static void _envtoi(const char* var, unsigned* dest) {
+		const char* value = getenv(var);
+		if (value)
+			*dest = atoi(value);
+	}
+
+public:
+	SDLController() {
+		// nothing to do here
+	}
+
+	~SDLController() {
+		SDL_Quit();
+	}
+
+	virtual void init() {
+		_envtoi("FASTLED_WIDTH",  &world_w);
+		_envtoi("FASTLED_HEIGHT", &world_h);
+		_envtoi("FASTLED_SCALE",  &scale);
+
+		SDL_Init(SDL_INIT_VIDEO);
+
+		char title[32];
+		snprintf(title, sizeof(title), "FastLED (%d x %d)", world_w, world_h);
+		window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, world_w * scale, world_h * scale, 0);
+		renderer = SDL_CreateRenderer(window, -1, 0);
+
+		draw_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_BGR888, SDL_TEXTUREACCESS_STREAMING, world_w, world_h);
+		SDL_LockTexture(draw_texture, NULL, &sdl_pixels, &sdl_pitch);
+	}
+
+protected:
+
+	virtual void showPixels(PixelController<RGB_ORDER> & pixels) {
+
+		Uint32 *p = (Uint32*) sdl_pixels;
+		while (pixels.has(1)) {
+			uint8_t r = pixels.loadAndScale0() * boost;
+			uint8_t g = pixels.loadAndScale1() * boost;
+			uint8_t b = pixels.loadAndScale2() * boost;
+
+			*p++ = r | (g << 8) | (b << 16);
+
+			pixels.advanceData();
+			pixels.stepDithering();
+		}
+
+		/* draw result to the screen */
+		SDL_UnlockTexture(draw_texture);
+		SDL_RenderCopy(renderer, draw_texture, NULL, NULL);
+		SDL_LockTexture(draw_texture, NULL, &sdl_pixels, &sdl_pitch);
+
+		SDL_RenderPresent(renderer);
+
+		SDL_Event sdl_event;
+		while (SDL_PollEvent(&sdl_event)) {
+			switch (sdl_event.type) {
+				case SDL_KEYDOWN:
+					switch(sdl_event.key.keysym.sym) {
+						case SDLK_PLUS:
+						case SDLK_KP_PLUS:
+							boost += 0.1f;
+							break;
+						case SDLK_MINUS:
+						case SDLK_KP_MINUS:
+							boost -= 0.1f;
+							break;
+						case SDLK_q:
+							exit(0);
+					}
+
+					break;
+				case SDL_QUIT:
+					exit(0);
+			}
+		}
+	}
+
+};
+#endif
+
 ///@}
 FASTLED_NAMESPACE_END
 
